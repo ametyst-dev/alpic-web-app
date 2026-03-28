@@ -1,20 +1,14 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 2 — Chunk Queue
+# Step 4 — Chunk Queue
 
-**Test command:** `npm run build` (TS check, all 11 routes registered)
+**Test command:** `npm run build`
 
-## Chunk 1: Admin topup + invite
+## Chunk 1: Replace app/page.tsx with login page
 **Status:** done
-- [x] Create `app/api/admin/topup/route.ts`
-- [x] Create `app/api/admin/invite/route.ts`
+- [x] Replace stock boilerplate with "use client" login form
+- [x] Email input → POST /api/auth/login → localStorage → redirect
 
-## Chunk 2: Admin wallet management
+## Chunk 2: Update layout metadata
 **Status:** done
-- [x] Create `app/api/admin/wallets/route.ts` (GET with inner join)
-- [x] Create `app/api/admin/wallets/[id]/route.ts` (PATCH, params is Promise)
-
-## Chunk 3: User onboarding
-**Status:** done
-- [x] Create `app/api/user/join/route.ts`
-- [x] Create `app/api/user/generate-key/route.ts`
+- [x] Change title to "Ametyst", description to "Ametyst hackathon demo"
