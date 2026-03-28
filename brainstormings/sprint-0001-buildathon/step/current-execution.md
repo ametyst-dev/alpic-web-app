@@ -8,47 +8,26 @@
 
 ## Summary
 **Overall status:** complete
-**Chunks completed:** 2 / 2
+**Chunks completed:** 1 / 1
 **Chunks blocked:** None
 
 ---
 
-## Chunk 1 — Replace app/page.tsx with login page
+## Chunk 1 — Create app/admin/page.tsx
 **Status:** complete
 **Committed:** n/a (not a commit point)
 
 ### What was done
-- Replaced `app/page.tsx` with a client `LoginPage` component (`"use client"`).
-- Form: email input (required), Login button with loading label `"Logging in..."` while `fetch` runs.
-- `POST /api/auth/login` with JSON `{ email }`; on success stores full JSON body in `localStorage` under `ametyst_user` and `router.push` to `/admin` or `/user` by `data.role`.
-- HTTP 404 → user-facing message **"No account found"** (explicit branch; API returns lowercase `error` but verification asked for this copy).
-- Other non-OK responses use `data.error` or `"Login failed"`; `catch` → `"Network error"`.
-- Tailwind: centered layout with `min-h-full flex-1`, card with border/shadow for contrast on `bg-zinc-50` / dark background.
+- Added `app/admin/page.tsx` as a client admin dashboard aligned with the login page styling (`bg-zinc-50` / dark, bordered cards, Geist-era Tailwind patterns).
+- **Auth guard:** On mount, reads `localStorage` key `ametyst_user`; if missing, invalid JSON, `role !== "admin"`, or no `id`, redirects to `/`. Shows a short loading state while checking.
+- **Balance:** Displays `data.balance` from stored admin; after successful `POST /api/admin/topup` updates UI and rewrites `ametyst_user` with `new_balance` from the API.
+- **Top-up form:** `POST /api/admin/topup` with `{ admin_id, amount }`; validates positive numeric amount client-side.
+- **Invite form:** `POST /api/admin/invite` with `{ admin_id, email }`; on success shows returned `invite_code` in a monospace block; clears email field.
+- **Wallets:** `GET /api/admin/wallets?admin_id=` on load; lists email (from nested `users`), `spending_limit`, `spent`, `status`; for `status === "pending"`, **Approve** / **Reject** call `PATCH /api/admin/wallets/:id` with `{ status: "approved" | "rejected" }` and refresh the list; buttons disabled while a request is in flight for that row.
+- **Logout:** Clears `ametyst_user` and `router.replace("/")`.
 
 ### Test results
-N/A — not a test chunk. Ran `npm run build` after both chunks; build succeeded (TypeScript + static generation).
-
-### Deviations from chunk plan
-- Outer wrapper adds `bg-zinc-50 dark:bg-black` and inner content uses a bordered card (`rounded-xl border … shadow-sm`) so the page is not a bare centered block — still minimal Tailwind, closer to a “card” than the plan snippet’s plain `max-w-sm p-8`.
-- Used explicit `res.status === 404` for the error copy instead of relying only on `data.error`.
-
-### Doubts and open questions
-None.
-
-### Blockers
-None.
-
----
-
-## Chunk 2 — Update layout metadata
-**Status:** complete
-**Committed:** n/a (not a commit point)
-
-### What was done
-- Updated `app/layout.tsx` `metadata`: `title` → `"Ametyst"`, `description` → `"Ametyst hackathon demo"`.
-
-### Test results
-N/A — not a test chunk.
+N/A — not a test chunk. Ran `npm run build` from the queue; build succeeded (includes `/admin` static route).
 
 ### Deviations from chunk plan
 None.
