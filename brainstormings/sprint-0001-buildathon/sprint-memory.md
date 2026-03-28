@@ -20,7 +20,6 @@ started: 2026-03-28
 - [2026-03-28] STEP_START macro_step=5 from alpic-web-app to domain-expansion — branch: buildathon-step-5, admin dashboard
 - [2026-03-28] STEP_DONE macro_step=5 from alpic-web-app to domain-expansion — PR: https://github.com/ametyst-dev/alpic-web-app/pull/5
 - [2026-03-28] STEP_START macro_step=6 from alpic-web-app to domain-expansion — branch: buildathon-step-6, user dashboard
-- [2026-03-28] STEP_DONE macro_step=6 from alpic-web-app to domain-expansion — PR: https://github.com/ametyst-dev/alpic-web-app/pull/6
 
 ### Received
 - [2026-03-28] SPRINT_START from sprint-planner to all — repos: [ametyst-dev/alpic-web-app], goal: Build the Ametyst web app + backend for the hackathon demo
