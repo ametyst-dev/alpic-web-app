@@ -1,135 +1,144 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 5 — Frontend: Admin Dashboard
+# Step 6 — Frontend: User Dashboard
 
 ## Context
-Steps 0-4 complete. Login page routes to `/admin`. Now building the admin dashboard — a single client component page at `app/admin/page.tsx`.
+Steps 0-5 complete. Login routes to `/user`. Now building the user dashboard — join with invite code, generate API key, view wallet status.
 
 ## What this step delivers
-- Admin dashboard with: balance display, top-up form, invite form, wallet requests list with approve/reject
-- All powered by existing API routes
+- User dashboard at `app/user/page.tsx`
+- Join flow for users who haven't joined yet
+- API key generation + display
+- Info about MCP wallet management
 
 ---
 
 ## Operational Guide for Cursor
 
-### Chunk 1: Create `app/admin/page.tsx`
+### Chunk 1: Create `app/user/page.tsx`
 
-**File:** `app/admin/page.tsx`
+**File:** `app/user/page.tsx`
 
-Single `"use client"` component. On mount, read `ametyst_user` from localStorage. If not found or role !== "admin", redirect to `/`. Otherwise show the dashboard.
+Single `"use client"` component. On mount, read `ametyst_user` from localStorage. If not found or role !== "user", redirect to `/`.
 
-**Sections:**
+**Two states based on `user.data.joined`:**
 
-**1. Header** — "Admin Dashboard" + admin email + logout button (clears localStorage, redirects to `/`)
+**State A: Not joined** — Show join form:
+- Pre-filled email (from localStorage data)
+- Invite code input
+- "Join" button → POST `/api/user/join` with `{ email, invite_code }`
+- On success, update localStorage with the returned user (joined=true), re-render to State B
 
-**2. Balance + Top-up** — Show current balance. Input for amount + "Top Up" button. POST `/api/admin/topup` with `{ admin_id, amount }`. On success, update displayed balance.
+**State B: Joined** — Show dashboard sections:
 
-**3. Invite User** — Input for email + "Invite" button. POST `/api/admin/invite` with `{ admin_id, email }`. On success, show the generated invite code so admin can share it.
+**1. Header** — "User Dashboard" + email + logout button
 
-**4. Wallet Requests** — On mount, GET `/api/admin/wallets?admin_id=`. Display table/list of wallets with: user email, spending_limit, spent, status. For pending wallets, show Approve/Reject buttons. PATCH `/api/admin/wallets/:id` with `{ status: "approved" }` or `{ status: "rejected" }`. Refresh list after action.
+**2. API Key** — If `user.data.api_key` exists, show it in a monospace box. Show "Regenerate API Key" button → POST `/api/user/generate-key` with `{ user_id }`. On success, update displayed key + localStorage.
 
-**Code structure:**
+**3. Info** — "Your wallets are managed through the MCP interface. Use your API key to request wallets and spend."
+
+**Styling:** Same zinc palette and card style as admin dashboard.
+
 ```typescript
 "use client"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-// Types
-interface AdminUser { role: string; id: string; data: { email: string; balance: number } }
-interface Wallet { id: string; user_id: string; spending_limit: number; spent: number; status: string; users: { email: string } }
+const STORAGE_KEY = "ametyst_user"
 
-export default function AdminDashboard() {
+type StoredUser = {
+  role: string
+  id: string
+  data: { email: string; api_key: string; joined: boolean; invite_code: string }
+}
+
+export default function UserDashboard() {
   const router = useRouter()
-  const [user, setUser] = useState<AdminUser | null>(null)
-  const [balance, setBalance] = useState(0)
+  const [user, setUser] = useState<StoredUser | null>(null)
+  const [ready, setReady] = useState(false)
 
-  // Top-up state
-  const [topupAmount, setTopupAmount] = useState("")
-
-  // Invite state
-  const [inviteEmail, setInviteEmail] = useState("")
+  // Join state
   const [inviteCode, setInviteCode] = useState("")
+  const [joinError, setJoinError] = useState("")
+  const [joinBusy, setJoinBusy] = useState(false)
 
-  // Wallets state
-  const [wallets, setWallets] = useState<Wallet[]>([])
+  // API key state
+  const [apiKey, setApiKey] = useState("")
+  const [keyBusy, setKeyBusy] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem("ametyst_user")
-    if (!stored) { router.push("/"); return }
-    const parsed = JSON.parse(stored)
-    if (parsed.role !== "admin") { router.push("/"); return }
-    setUser(parsed)
-    setBalance(parsed.data.balance)
-    loadWallets(parsed.id)
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) { router.replace("/"); return }
+    try {
+      const parsed = JSON.parse(raw) as StoredUser
+      if (parsed.role !== "user") { router.replace("/"); return }
+      setUser(parsed)
+      setApiKey(parsed.data.api_key || "")
+      setReady(true)
+    } catch { router.replace("/") }
   }, [router])
 
-  async function loadWallets(adminId: string) {
-    const res = await fetch(`/api/admin/wallets?admin_id=${adminId}`)
-    const data = await res.json()
-    setWallets(data)
+  async function handleJoin(e: React.FormEvent) {
+    e.preventDefault()
+    if (!user) return
+    setJoinError("")
+    setJoinBusy(true)
+    try {
+      const res = await fetch("/api/user/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.data.email, invite_code: inviteCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setJoinError(data.error || "Join failed"); return }
+      const updated = { ...user, data: data }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      setUser(updated)
+      setApiKey(data.api_key || "")
+    } catch { setJoinError("Network error") }
+    finally { setJoinBusy(false) }
   }
 
-  async function handleTopup() {
-    if (!user || !topupAmount) return
-    const res = await fetch("/api/admin/topup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ admin_id: user.id, amount: Number(topupAmount) }),
-    })
-    const data = await res.json()
-    if (res.ok) { setBalance(data.new_balance); setTopupAmount("") }
-  }
-
-  async function handleInvite() {
-    if (!user || !inviteEmail) return
-    const res = await fetch("/api/admin/invite", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ admin_id: user.id, email: inviteEmail }),
-    })
-    const data = await res.json()
-    if (res.ok) { setInviteCode(data.invite_code); setInviteEmail("") }
-  }
-
-  async function handleWalletAction(walletId: string, status: string) {
-    await fetch(`/api/admin/wallets/${walletId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    })
-    if (user) loadWallets(user.id)
+  async function handleGenerateKey() {
+    if (!user) return
+    setKeyBusy(true)
+    try {
+      const res = await fetch("/api/user/generate-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setApiKey(data.api_key)
+        const updated = { ...user, data: { ...user.data, api_key: data.api_key } }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+        setUser(updated)
+      }
+    } finally { setKeyBusy(false) }
   }
 
   function handleLogout() {
-    localStorage.removeItem("ametyst_user")
-    router.push("/")
+    localStorage.removeItem(STORAGE_KEY)
+    router.replace("/")
   }
 
-  if (!user) return null
+  if (!ready || !user) return null
 
-  // Render: header, balance+topup section, invite section, wallets table
-  // Use Tailwind — consistent with login page style (zinc palette, rounded-lg, etc.)
+  // If not joined → show join form
+  // If joined → show header, API key section, MCP info
 }
 ```
-
-**Tailwind styling guidelines:**
-- Same zinc palette as login page
-- Card-style sections with `rounded-xl border border-zinc-200 p-6 dark:border-zinc-800`
-- Inputs same style as login: `rounded-lg border border-zinc-300 px-4 py-2`
-- Buttons same style as login: `rounded-lg bg-zinc-900 text-white`
-- Approve button: green variant, Reject button: red variant
-- Status badges: pending=yellow, approved=green, rejected=red
 
 ---
 
 ## Verification
 1. `npm run build` passes
-2. Visit `/admin` with admin in localStorage → see dashboard
-3. Top-up updates balance display
-4. Invite shows invite code
-5. Wallet list loads, approve/reject buttons work
+2. Visit `/user` with user in localStorage → see join form or dashboard
+3. Join with invite code → transitions to joined state
+4. Generate API key → monospace display
+5. Logout → redirects to `/`
 
 ## HIL actions required
 None — pure code step.

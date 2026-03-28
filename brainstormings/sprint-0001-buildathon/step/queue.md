@@ -1,13 +1,12 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 5 — Chunk Queue
+# Step 6 — Chunk Queue
 
 **Test command:** `npm run build`
 
-## Chunk 1: Create app/admin/page.tsx
+## Chunk 1: Create app/user/page.tsx
 **Status:** done
-- [ ] "use client" admin dashboard with localStorage auth guard
-- [ ] Balance display + top-up form (POST /api/admin/topup)
-- [ ] Invite user form (POST /api/admin/invite) → show invite code
-- [ ] Wallet requests list (GET /api/admin/wallets) + approve/reject (PATCH)
+- [ ] "use client" user dashboard with localStorage auth guard
+- [ ] Join form (not joined state): email + invite code → POST /api/user/join
+- [ ] Joined state: API key display + regenerate (POST /api/user/generate-key)
 - [ ] Logout button
