@@ -1,0 +1,11 @@
+---
+description: Active sprint context — tells Cursor which sprint folder is currently active in this repo. Set automatically by sprint-planner. Do not edit manually.
+alwaysApply: true
+---
+
+# Active Sprint
+
+sprint_folder: brainstormings/sprint-0001-buildathon
+
+This value is set automatically by the sprint-planner when the branch is created.
+Do not edit manually — it will be overwritten at the start of each sprint step.
