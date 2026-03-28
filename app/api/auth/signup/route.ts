@@ -1,24 +1,3 @@
-<!-- Written by step-plan skill. Always overwritten. -->
-
-# Step 7 — Sign Up + Sign In flow fix
-
-## Context
-The landing page only has Sign In — but there's no way to create accounts from the UI. Need Sign Up for both admins and users to make the demo work.
-
-## What this step delivers
-- New API route: POST `/api/auth/signup` — creates admin or user (with invite code for users)
-- Updated landing page with Sign In / Sign Up toggle
-- Sign Up form: email + role selector (Admin/User) + invite code field (only for User)
-
----
-
-## Operational Guide for Cursor
-
-### Chunk 1: Create `app/api/auth/signup/route.ts`
-
-**File:** `app/api/auth/signup/route.ts`
-
-```typescript
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
@@ -33,7 +12,6 @@ export async function POST(request: Request) {
   }
 
   if (role === 'admin') {
-    // Check if admin already exists
     const { data: existing } = await supabase
       .from('admins')
       .select('*')
@@ -44,7 +22,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'admin already exists' }, { status: 409 })
     }
 
-    // Create admin
     const { data: admin, error } = await supabase
       .from('admins')
       .insert({ email })
@@ -66,7 +43,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Look up the user row created by admin invite
     const { data: user } = await supabase
       .from('users')
       .select('*')
@@ -88,7 +64,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Mark as joined
     const { data: updated, error } = await supabase
       .from('users')
       .update({ joined: true })
@@ -105,38 +80,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ error: 'role must be "admin" or "user"' }, { status: 400 })
 }
-```
-
-### Chunk 2: Update `app/page.tsx` with Sign In / Sign Up toggle
-
-**File:** `app/page.tsx`
-
-Replace the current login-only page with a component that has two modes:
-
-**Mode: Sign In** (default)
-- Email input + "Sign In" button (same as current)
-- Link: "Don't have an account? Sign Up"
-
-**Mode: Sign Up**
-- Email input
-- Role selector: two buttons/tabs "Admin" / "User"
-- If User selected → show invite code input
-- "Sign Up" button → POST `/api/auth/signup` with `{ email, role, invite_code? }`
-- On success → store response in localStorage → redirect to `/admin` or `/user`
-- Link: "Already have an account? Sign In"
-
-**Keep the same styling** — zinc palette, centered card, rounded-lg inputs/buttons.
-
----
-
-## Verification
-1. `npm run build` passes
-2. Landing page shows Sign In by default
-3. Click "Sign Up" → form with role selector appears
-4. Sign up as Admin → creates admin, redirects to `/admin`
-5. Sign up as User with invite code → joins, redirects to `/user`
-6. Sign In still works for existing accounts
-7. Error messages for duplicate admin, invalid invite code, etc.
-
-## HIL actions required
-None — pure code step.

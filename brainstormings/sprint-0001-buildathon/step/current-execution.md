@@ -8,7 +8,7 @@
 
 ## Summary
 **Overall status:** complete
-**Chunks completed:** 1 / 1
+**Chunks completed:** 2 / 2 (Step 7 queue: signup API + landing toggle)
 **Chunks blocked:** None
 
 ---
@@ -26,6 +26,56 @@
 
 ### Test results
 N/A — not a test chunk. Ran `npm run build` (queue test command); build succeeded; `/user` listed as static route.
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 1 — Create POST /api/auth/signup
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Added `app/api/auth/signup/route.ts`: `POST` handler reads `{ email, role, invite_code }` from JSON.
+- Validates `email` and `role`; returns 400 if missing.
+- **Admin:** checks `admins` for existing email → 409; otherwise `insert({ email })`, returns 201 with `{ role: 'admin', id, data }` matching login shape.
+- **User:** requires `invite_code` (400); loads `users` row by `email` + `invite_code`; 404 if missing; 400 if `joined`; `update({ joined: true })` and returns 201 with `{ role: 'user', id, data }`.
+- Invalid `role` → 400 with message that role must be `"admin"` or `"user"`.
+
+### Test results
+N/A — not a test chunk. `npm run build` run after both chunks; succeeded (includes `/api/auth/signup` route).
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 2 — Update app/page.tsx with Sign In / Sign Up toggle
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Refactored `app/page.tsx` to client component with `mode: 'signin' | 'signup'` (default sign in).
+- **Sign In:** same email + submit flow as before, renamed handler to `handleSignIn`, button copy "Sign In" / "Signing in...", error text uses "Sign in failed" for generic failures.
+- **Sign Up:** segmented control for Admin vs User; email field; invite code field only when User is selected (required with HTML `required`); `handleSignUp` posts `{ email, role, invite_code? }` to `/api/auth/signup`, on success mirrors sign-in localStorage + redirect to `/admin` or `/user`.
+- Toggle links: "Don't have an account? Sign Up" and "Already have an account? Sign In" with mode switch and error clear.
+- Styling unchanged: zinc card, `rounded-lg` inputs/buttons, same primary button classes.
+
+### Test results
+N/A — not a test chunk. `npm run build` passed.
 
 ### Deviations from chunk plan
 None.
