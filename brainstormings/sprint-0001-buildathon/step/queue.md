@@ -1,28 +1,34 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 0 — Chunk Queue
+# Step 1 — Chunk Queue
 
-**Test command:** N/A
+**Test command:** `npm run build` (TS check only, no automated tests)
 
-## Chunk 1: Scaffold Next.js into existing repo
+## Chunk 1: Deploy `spend_from_wallet` RPC
 **Status:** done
-- [x] Run `npx create-next-app@latest temp-next` with flags
-- [x] Move files from temp-next to root (preserve README.md)
-- [x] Clean up temp-next directory
-- [x] `npm install`
-- [x] Verify `npm run dev` starts
+- [ ] **HIL:** Run SQL in Supabase SQL Editor (creates atomic spend function) — or apply `supabase/migrations/20260328120000_spend_from_wallet.sql`
 
-## Chunk 2: Install Supabase + create client
+## Chunk 2: POST /api/auth/login
 **Status:** done
-- [x] `npm install @supabase/supabase-js`
-- [x] Create `lib/supabase.ts`
+- [ ] Create `app/api/auth/login/route.ts`
+- [ ] Verify: curl returns 404 for unknown email
 
-## Chunk 3: Create `.env.local`
+## Chunk 3: GET /api/services
 **Status:** done
-- [x] Create `.env.local` with placeholder values
-- [ ] **HIL:** Fill in real Supabase URL + anon key
+- [ ] Create `app/api/services/route.ts`
+- [ ] Verify: curl returns `[]`
 
-## Chunk 4: Database setup
-**Status:** blocked
-- [ ] **HIL:** Run SQL in Supabase SQL Editor (create 4 tables + RLS policies)
-- [ ] Verify tables exist in Supabase dashboard
+## Chunk 4: POST /api/wallets/request
+**Status:** done
+- [ ] Create `app/api/wallets/request/route.ts`
+- [ ] Verify: curl with bad api_key returns 401
+
+## Chunk 5: GET /api/wallets/check
+**Status:** done
+- [ ] Create `app/api/wallets/check/route.ts`
+- [ ] Verify: curl with fake wallet_id returns 404
+
+## Chunk 6: POST /api/spend
+**Status:** done
+- [ ] Create `app/api/spend/route.ts`
+- [ ] Verify: curl with bad api_key returns 401
