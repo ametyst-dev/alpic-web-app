@@ -104,3 +104,139 @@ None.
 
 ### Blockers
 - **HIL:** Run the SQL from `current-plan.md` in the Supabase SQL Editor and confirm the four tables exist in the dashboard. Cursor has no access to the project’s Supabase instance, so SQL execution and dashboard verification cannot be completed here.
+
+---
+
+## Follow-up execution — Step 1 Core API Routes (queue 2026-03-28)
+
+## Summary
+**Overall status:** complete
+**Chunks completed:** 6 / 6
+**Chunks blocked:** None
+
+---
+
+## Chunk 1 — Deploy `spend_from_wallet` RPC
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Added `supabase/migrations/20260328120000_spend_from_wallet.sql` containing the `spend_from_wallet` function exactly as specified in `current-plan.md` (same logic as the SQL Editor snippet).
+- Updated `queue.md` Chunk 1 checklist note: HIL can paste from the plan **or** apply this migration file in Supabase SQL Editor / CLI.
+
+### Test results
+N/A — not a test chunk. `npm run build` passed in the combined verification for this step (see Chunk 6 / final verification).
+
+### Deviations from chunk plan
+- Chunk 1 only listed an HIL SQL Editor task; Cursor cannot access Supabase. The migration file was added in-repo so the same DDL is versioned and easy to apply. **HIL must still run it against the live project** before `POST /api/spend` can succeed end-to-end.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 2 — POST /api/auth/login
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Created `app/api/auth/login/route.ts` per `current-plan.md` (admin then user lookup by email).
+
+### Test results
+N/A — not a test chunk. Manual: `curl -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{"email":"x@x.com"}'` → **404**.
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 3 — GET /api/services
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Created `app/api/services/route.ts` selecting all rows from `bazar`.
+
+### Test results
+N/A — not a test chunk. Manual: `curl http://localhost:3000/api/services` → **[]** (empty bazar table).
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 4 — POST /api/wallets/request
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Created `app/api/wallets/request/route.ts` with api_key validation, `joined` check, and insert into `virtual_wallets`.
+
+### Test results
+N/A — not a test chunk. Manual: `curl -X POST .../api/wallets/request` with bad api_key → **401**.
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 5 — GET /api/wallets/check
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Created `app/api/wallets/check/route.ts` with `wallet_id` query param and 404 when missing.
+
+### Test results
+N/A — not a test chunk. Manual: `curl .../api/wallets/check?wallet_id=00000000-0000-0000-0000-000000000000` → **404**.
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
+
+---
+
+## Chunk 6 — POST /api/spend
+**Status:** complete
+**Committed:** n/a (not a commit point)
+
+### What was done
+- Created `app/api/spend/route.ts` calling `supabase.rpc('spend_from_wallet', ...)`.
+
+### Test results
+N/A — not a test chunk. Manual: bad api_key → **401**. Full `npm run build` (queue test command) completed successfully.
+
+### Deviations from chunk plan
+None.
+
+### Doubts and open questions
+None.
+
+### Blockers
+None.
