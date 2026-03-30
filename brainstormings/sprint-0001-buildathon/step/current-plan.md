@@ -1,142 +1,44 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 7 — Sign Up + Sign In flow fix
+# Step 8 — UPGRADE: Auto-approve demo wallet requests
 
 ## Context
-The landing page only has Sign In — but there's no way to create accounts from the UI. Need Sign Up for both admins and users to make the demo work.
+UPGRADE_PROPOSED from domain-expansion: demo users from LinkedIn need to test the full spend flow without waiting for manual admin wallet approval. Normal users still go through the standard `pending` → admin approval flow.
 
 ## What this step delivers
-- New API route: POST `/api/auth/signup` — creates admin or user (with invite code for users)
-- Updated landing page with Sign In / Sign Up toggle
-- Sign Up form: email + role selector (Admin/User) + invite code field (only for User)
+In `app/api/wallets/request/route.ts`, after finding the user by `api_key`, check if the key is in a `DEMO_API_KEYS` list (read from env var). If yes, insert the wallet with `status: 'approved'` instead of `'pending'`.
 
 ---
 
 ## Operational Guide for Cursor
 
-### Chunk 1: Create `app/api/auth/signup/route.ts`
+### Chunk 1: Modify `app/api/wallets/request/route.ts`
 
-**File:** `app/api/auth/signup/route.ts`
+**File:** `app/api/wallets/request/route.ts`
 
-```typescript
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+1. Add a `DEMO_API_KEYS` constant at the top (after imports):
+   ```typescript
+   const DEMO_API_KEYS = (process.env.DEMO_API_KEYS ?? '').split(',').filter(Boolean)
+   ```
 
-export async function POST(request: Request) {
-  const { email, role, invite_code } = await request.json()
+2. Before the wallet insert, determine status:
+   ```typescript
+   const status = DEMO_API_KEYS.includes(api_key) ? 'approved' : 'pending'
+   ```
 
-  if (!email || !role) {
-    return NextResponse.json(
-      { error: 'email and role are required' },
-      { status: 400 }
-    )
-  }
+3. Use `status` variable in the insert instead of hardcoded `'pending'`.
 
-  if (role === 'admin') {
-    // Check if admin already exists
-    const { data: existing } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle()
+### Chunk 2: Verify build
 
-    if (existing) {
-      return NextResponse.json({ error: 'admin already exists' }, { status: 409 })
-    }
-
-    // Create admin
-    const { data: admin, error } = await supabase
-      .from('admins')
-      .insert({ email })
-      .select()
-      .single()
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ role: 'admin', id: admin.id, data: admin }, { status: 201 })
-  }
-
-  if (role === 'user') {
-    if (!invite_code) {
-      return NextResponse.json(
-        { error: 'invite_code is required for user signup' },
-        { status: 400 }
-      )
-    }
-
-    // Look up the user row created by admin invite
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .eq('invite_code', invite_code)
-      .maybeSingle()
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'invalid email or invite code' },
-        { status: 404 }
-      )
-    }
-
-    if (user.joined) {
-      return NextResponse.json(
-        { error: 'user has already joined' },
-        { status: 400 }
-      )
-    }
-
-    // Mark as joined
-    const { data: updated, error } = await supabase
-      .from('users')
-      .update({ joined: true })
-      .eq('id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ role: 'user', id: updated.id, data: updated }, { status: 201 })
-  }
-
-  return NextResponse.json({ error: 'role must be "admin" or "user"' }, { status: 400 })
-}
-```
-
-### Chunk 2: Update `app/page.tsx` with Sign In / Sign Up toggle
-
-**File:** `app/page.tsx`
-
-Replace the current login-only page with a component that has two modes:
-
-**Mode: Sign In** (default)
-- Email input + "Sign In" button (same as current)
-- Link: "Don't have an account? Sign Up"
-
-**Mode: Sign Up**
-- Email input
-- Role selector: two buttons/tabs "Admin" / "User"
-- If User selected → show invite code input
-- "Sign Up" button → POST `/api/auth/signup` with `{ email, role, invite_code? }`
-- On success → store response in localStorage → redirect to `/admin` or `/user`
-- Link: "Already have an account? Sign In"
-
-**Keep the same styling** — zinc palette, centered card, rounded-lg inputs/buttons.
+Run `npm run build` — must pass with no errors.
 
 ---
 
 ## Verification
 1. `npm run build` passes
-2. Landing page shows Sign In by default
-3. Click "Sign Up" → form with role selector appears
-4. Sign up as Admin → creates admin, redirects to `/admin`
-5. Sign up as User with invite code → joins, redirects to `/user`
-6. Sign In still works for existing accounts
-7. Error messages for duplicate admin, invalid invite code, etc.
+2. POST `/api/wallets/request` with a demo API key → wallet returned with `status: 'approved'`
+3. POST `/api/wallets/request` with a normal API key → wallet returned with `status: 'pending'` (unchanged)
+4. Configure `DEMO_API_KEYS` env var in Vercel (comma-separated list of demo API keys)
 
 ## HIL actions required
-None — pure code step.
+- Add `DEMO_API_KEYS` env var in Vercel with the demo API key values
