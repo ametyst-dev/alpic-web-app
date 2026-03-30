@@ -20,6 +20,10 @@ started: 2026-03-28
 - [2026-03-28] STEP_START macro_step=5 from alpic-web-app to domain-expansion — branch: buildathon-step-5, admin dashboard
 - [2026-03-28] STEP_DONE macro_step=5 from alpic-web-app to domain-expansion — PR: https://github.com/ametyst-dev/alpic-web-app/pull/5
 - [2026-03-28] STEP_START macro_step=6 from alpic-web-app to domain-expansion — branch: buildathon-step-6, user dashboard
+- [2026-03-28] STEP_DONE macro_step=6 from alpic-web-app to domain-expansion — PR: https://github.com/ametyst-dev/alpic-web-app/pull/6
+- [2026-03-28] STEP_START macro_step=7 from alpic-web-app to domain-expansion — branch: buildathon-step-7, signup flow + stabilization
+- [2026-03-28] STEP_DONE macro_step=7 from alpic-web-app to domain-expansion — PR: https://github.com/ametyst-dev/alpic-web-app/pull/8
+- [2026-03-30] STEP_START macro_step=8 from alpic-web-app to domain-expansion — branch: buildathon-step-8, UPGRADE auto-approve demo wallets
 
 ### Received
 - [2026-03-28] SPRINT_START from sprint-planner to all — repos: [ametyst-dev/alpic-web-app], goal: Build the Ametyst web app + backend for the hackathon demo
@@ -28,9 +32,6 @@ started: 2026-03-28
 - [2026-03-28] MACRO_STEP_START macro_step=1 from domain-expansion to all — Core API routes (MPC-facing)
 - [2026-03-28] PR_MERGED macro_step=1 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/2
 - [2026-03-28] MACRO_STEP_DONE macro_step=1 from domain-expansion to all — Step 1 complete
-- [2026-03-28] PR_MERGED macro_step=5 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/5
-- [2026-03-28] MACRO_STEP_DONE macro_step=5 from domain-expansion to all — Step 5 complete
-- [2026-03-28] MACRO_STEP_START macro_step=6 from domain-expansion to all — Frontend user dashboard
 - [2026-03-28] MACRO_STEP_START macro_step=2 from domain-expansion to all — Admin + User API routes
 - [2026-03-28] PR_MERGED macro_step=2 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/3
 - [2026-03-28] MACRO_STEP_DONE macro_step=2 from domain-expansion to all — Step 2 complete
@@ -40,10 +41,10 @@ started: 2026-03-28
 - [2026-03-28] PR_MERGED macro_step=4 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/4
 - [2026-03-28] MACRO_STEP_DONE macro_step=4 from domain-expansion to all — Step 4 complete
 - [2026-03-28] MACRO_STEP_START macro_step=5 from domain-expansion to all — Frontend admin dashboard
-- [2026-03-28] MACRO_STEP_START macro_step=2 from domain-expansion to all — Admin + User API routes
-- [2026-03-28] PR_MERGED macro_step=2 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/3
-- [2026-03-28] MACRO_STEP_DONE macro_step=2 from domain-expansion to all — Step 2 complete
-- [2026-03-28] MACRO_STEP_START macro_step=3 from domain-expansion to all — Deploy to Vercel
-- [2026-03-28] MACRO_STEP_DONE macro_step=3 from domain-expansion to all — Step 3 complete
-- [2026-03-28] MACRO_STEP_START macro_step=4 from domain-expansion to all — Frontend login + routing
-- [2026-03-28] MACRO_STEP_START macro_step=2 from domain-expansion to all — Admin + User API routes
+- [2026-03-28] PR_MERGED macro_step=5 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/5
+- [2026-03-28] MACRO_STEP_DONE macro_step=5 from domain-expansion to all — Step 5 complete
+- [2026-03-28] MACRO_STEP_START macro_step=6 from domain-expansion to all — Frontend user dashboard
+- [2026-03-28] PR_MERGED macro_step=6 from domain-expansion to alpic-web-app — PR: https://github.com/ametyst-dev/alpic-web-app/pull/6
+- [2026-03-28] MACRO_STEP_DONE macro_step=6 from domain-expansion to all — User dashboard live
+- [2026-03-28] MACRO_STEP_START macro_step=7 from domain-expansion to all — Stabilization
+- [2026-03-30] UPGRADE_PROPOSED from domain-expansion to alpic-web-app — Auto-approve wallet requests from demo API keys (DEMO_API_KEYS list in wallets/request)

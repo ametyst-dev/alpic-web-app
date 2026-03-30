@@ -1,19 +1,18 @@
 <!-- Written by step-plan skill. Always overwritten. -->
 
-# Step 7 — Chunk Queue
+# Step 8 — Chunk Queue
 
 **Test command:** `npm run build`
 
-## Chunk 1: Create POST /api/auth/signup
+## Chunk 1: Add DEMO_API_KEYS auto-approve logic
 **Status:** done
-- [ ] Create `app/api/auth/signup/route.ts`
-- [ ] Admin signup: insert into admins table, return { role, id, data }
-- [ ] User signup: verify email + invite_code, mark joined=true, return { role, id, data }
+**Type:** code
+- [x] Add `DEMO_API_KEYS` constant from env var at top of `app/api/wallets/request/route.ts`
+- [x] Determine status based on whether api_key is in DEMO_API_KEYS
+- [x] Use dynamic status in wallet insert
 
-## Chunk 2: Update app/page.tsx with Sign In / Sign Up toggle
+## Chunk 2: Verify build
 **Status:** done
-- [ ] Add mode toggle: Sign In (default) / Sign Up
-- [ ] Sign Up form: email + role selector (Admin/User) + invite code (User only)
-- [ ] POST /api/auth/signup on submit → localStorage → redirect
-- [ ] Keep existing Sign In logic
-- [ ] "Don't have an account?" / "Already have an account?" links
+**Type:** test
+**Commit point:** chunks 1-2
+- [x] `npm run build` passes
