@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-const DEMO_API_KEYS = (process.env.DEMO_API_KEYS ?? '').split(',').filter(Boolean)
-
 export async function POST(request: Request) {
   const { api_key, spending_limit } = await request.json()
 
@@ -27,7 +25,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'user has not joined yet' }, { status: 403 })
   }
 
-  const status = DEMO_API_KEYS.includes(api_key) ? 'approved' : 'pending'
+  const demoKeys = (process.env.DEMO_API_KEYS ?? '').split(',').filter(Boolean)
+  const status = demoKeys.includes(api_key) ? 'approved' : 'pending'
 
   const { data: wallet, error } = await supabase
     .from('virtual_wallets')
